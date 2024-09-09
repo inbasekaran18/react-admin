@@ -2,40 +2,9 @@ import { FetchMockAdapter, withDelay } from 'fakerest';
 import fetchMock from 'fetch-mock';
 import { faker } from '@faker-js/faker';
 
-// Define types for customers, products, and orders
-interface Customer {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string;
-  zipcode: string;
-  country: string;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  price: string;
-  category: string;
-  description: string;
-  stock: number;
-}
-
-interface Order {
-  id: string;
-  customer_id: string;
-  product_id: string;
-  date: Date;
-  total: string;
-  status: 'Pending' | 'Shipped' | 'Delivered';
-}
-
-// Generate mock data with proper types
+// Generate mock data for customers, orders, and users
 const generateMockData = () => ({
-  customers: Array.from<Partial<Customer>, Customer>({ length: 100 }, () => ({
+  customers: Array.from({ length: 100 }, () => ({
     id: faker.string.uuid(),
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
@@ -46,43 +15,85 @@ const generateMockData = () => ({
     zipcode: faker.location.zipCode(),
     country: faker.location.country(),
   })),
-  products: Array.from<Partial<Product>, Product>({ length: 50 }, () => ({
+  orders: Array.from({ length: 50 }, () => ({
     id: faker.string.uuid(),
-    name: faker.commerce.productName(),
-    price: faker.commerce.price(),
-    category: faker.commerce.department(),
-    description: faker.commerce.productDescription(),
-    stock: faker.number.int({ min: 1, max: 100 }),
-  })),
-  orders: Array.from<Partial<Order>, Order>({ length: 200 }, () => ({
-    id: faker.string.uuid(),
-    customer_id: faker.string.uuid(),
-    product_id: faker.string.uuid(),
-    date: faker.date.past(),
-    total: faker.commerce.price(),
+    customerId: faker.string.uuid(), // Link to a customer
+    orderDate: faker.date.past(),
+    totalAmount: faker.commerce.price(),
     status: faker.helpers.arrayElement(['Pending', 'Shipped', 'Delivered']),
+  })),
+  users: Array.from({ length: 20 }, () => ({
+    id: faker.string.uuid(),
+    username: faker.internet.userName(),
+    email: faker.internet.email(),
+    role: faker.helpers.arrayElement(['admin', 'editor', 'viewer']),
   })),
 });
 
-// Setup fake server
+// Manually add X-Total-Count and Access-Control-Expose-Headers to the response
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const addHeaders = (data: any[], resource: string, totalCount: number) => ({
+  body: JSON.stringify(data),
+  status: 200,
+  headers: {
+    'X-Total-Count': totalCount.toString(),
+    'Access-Control-Expose-Headers': 'X-Total-Count',
+  },
+});
+
+// Setup the mock server
 export const setupFakeServer = (): (() => void) => {
   const data = generateMockData();
   const adapter = new FetchMockAdapter({
-    baseUrl: 'http://localhost:4000',
+    baseUrl: 'http://localhost:4000', // Base URL for the API
     data,
     loggingEnabled: true,
-    middlewares: [withDelay(500)], // Add a 500ms delay for network simulation
+    middlewares: [withDelay(500)], // Simulate a network delay
   });
 
-  // Expose the fake server to the window for debugging
+  // Mock requests to the localhost API with headers
+  fetchMock.mock('begin:http://localhost:4000/customers', (url) => {
+    const start = parseInt(
+      new URLSearchParams(url.split('?')[1]).get('_start') || '0'
+    );
+    const end = parseInt(
+      new URLSearchParams(url.split('?')[1]).get('_end') ||
+        data.customers.length.toString()
+    );
+    const paginatedCustomers = data.customers.slice(start, end);
+    return addHeaders(paginatedCustomers, 'customers', data.customers.length);
+  });
+
+  fetchMock.mock('begin:http://localhost:4000/orders', (url) => {
+    const start = parseInt(
+      new URLSearchParams(url.split('?')[1]).get('_start') || '0'
+    );
+    const end = parseInt(
+      new URLSearchParams(url.split('?')[1]).get('_end') ||
+        data.orders.length.toString()
+    );
+    const paginatedOrders = data.orders.slice(start, end);
+    return addHeaders(paginatedOrders, 'orders', data.orders.length);
+  });
+
+  fetchMock.mock('begin:http://localhost:4000/users', (url) => {
+    const start = parseInt(
+      new URLSearchParams(url.split('?')[1]).get('_start') || '0'
+    );
+    const end = parseInt(
+      new URLSearchParams(url.split('?')[1]).get('_end') ||
+        data.users.length.toString()
+    );
+    const paginatedUsers = data.users.slice(start, end);
+    return addHeaders(paginatedUsers, 'users', data.users.length);
+  });
+
+  // Expose the fake server to the window for debugging purposes
   if (typeof window !== 'undefined') {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).restServer = adapter.server;
   }
 
-  // Mock requests to the localhost API
-  fetchMock.mock('begin:http://localhost:4000', adapter.getHandler());
-
-  // Restore fetch behavior when the server is no longer needed
+  // Restore the original fetch behavior when the server is no longer needed
   return () => fetchMock.restore();
 };

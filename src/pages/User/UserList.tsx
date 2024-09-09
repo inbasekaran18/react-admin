@@ -6,13 +6,9 @@ export const UserList: React.FC = (props) => {
     <List {...props}>
       <Datagrid>
         <TextField source="id" />
-        <TextField source="firstName" />
-        <TextField source="lastName" />
+        <TextField source="username" />
         <EmailField source="email" />
-        <TextField source="address" />
-        <TextField source="city" />
-        <TextField source="zipcode" />
-        <TextField source="country" />
+        <TextField source="role" />
       </Datagrid>
     </List>
   );
