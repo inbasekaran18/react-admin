@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { List, Datagrid, TextField, EmailField } from 'react-admin';
 
-export const UserList: React.FC = (props) => {
+export const CustomerList: React.FC = (props) => {
   return (
     <List {...props}>
       <Datagrid>

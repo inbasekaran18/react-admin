@@ -22,12 +22,16 @@ const generateMockData = () => ({
     totalAmount: faker.commerce.price(),
     status: faker.helpers.arrayElement(['Pending', 'Shipped', 'Delivered']),
   })),
-  users: Array.from({ length: 20 }, () => ({
-    id: faker.string.uuid(),
-    username: faker.internet.userName(),
-    email: faker.internet.email(),
-    role: faker.helpers.arrayElement(['admin', 'editor', 'viewer']),
-  })),
+  users: [
+    { id: 1, username: 'admin', password: 'admin123', role: 'admin' },
+    {
+      id: 2,
+      username: 'superadmin',
+      password: 'superadmin123',
+      role: 'superadmin',
+    },
+    { id: 3, username: 'user', password: 'user123', role: 'user' },
+  ],
 });
 
 // Manually add X-Total-Count and Access-Control-Expose-Headers to the response

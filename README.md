@@ -44,3 +44,18 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+## Command to Use
+
+Fix Prettier :npx prettier --write .
+Check : npx prettier --check .
+Format specific file types : npx prettier --write "src/\*_/_.ts"
+Show which files will be formatted : npx prettier --list-different "src/\*_/_.{js,jsx,ts,tsx}"
+
+Eslint :
+
+Lint and fix issues automatically for all files : npx eslint --fix .
+Lint only specific files or file types : npx eslint "src/\*_/_.ts"
+Check for linting errors without fixing : npx eslint .
+
+Add // eslint-disable-next-line @typescript-eslint/no-explicit-any if you are using any type
