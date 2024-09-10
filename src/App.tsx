@@ -5,6 +5,9 @@ import dataProvider from './providers/dataProvider.ts'; // Custom data provider 
 //import { CustomerList } from './pages/User/Profile.tsx';
 import { UserList } from './pages/User/UserList.tsx';
 import { ManageContent } from './pages/Content/ManageContent.tsx';
+import { ManageContentEdit } from './pages/Content/ManageContentEdit.tsx';
+import { ManageContentCreate } from './pages/Content/ManageContentCreate.tsx';
+
 import { ManageDevices } from './pages/Device/ManageDevice.tsx';
 import { ManageSessions } from './pages/Session/MangeSession.tsx';
 
@@ -21,6 +24,7 @@ import SessionIcon from '@mui/icons-material/AccessTime';
 import DeviceIcon from '@mui/icons-material/Devices';
 
 const store = localStorageStore(undefined, 'trnr');
+
 const App: React.FC = () => {
   const [themeName] = useStore<ThemeName>('themeName', 'house');
   const lightTheme = themes.find((theme) => theme.name === themeName)?.light;
@@ -31,7 +35,9 @@ const App: React.FC = () => {
       restoreServer();
     };
   }, []);
+  // eslint-disable-next-line no-console
 
+  console.log('hdghghdgh');
   return (
     <Admin
       authProvider={authProvider}
@@ -47,16 +53,20 @@ const App: React.FC = () => {
         permissions === 'superadmin' ? (
           <>
             <Resource
-              name="content"
+              name="content" //baseurl/content
               list={ManageContent}
+              edit={ManageContentEdit} // Add edit functionality
+              create={ManageContentCreate} // Add create functionality (if required)
               key="ManageContent"
               icon={ManageContentIcon}
+              options={{ label: 'Manage Content' }} // This changes the menu title
             />
             <Resource
               name="users"
               list={UserList}
               key="users"
               icon={UserIcon}
+              options={{ label: 'Users' }}
             />
           </>
         ) : null,
@@ -72,14 +82,16 @@ const App: React.FC = () => {
           <Resource
             name="sessions"
             list={ManageSessions}
-            key="orders"
+            key="sessions"
             icon={SessionIcon}
+            options={{ label: 'My Sessions' }}
           />
           <Resource
             name="devices"
             list={ManageDevices}
             key="orders"
             icon={DeviceIcon}
+            options={{ label: 'Manage Device' }}
           />
         </>,
       ]}
