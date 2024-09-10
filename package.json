@@ -1,6 +1,9 @@
 {
   "name": "react-admin-typescript",
   "version": "0.1.0",
+  "description": "A React Admin panel built with react-admin, Material UI, and TypeScript. Includes role-based access control (RBAC), theme switching, mock API, and authentication.",
+  "author": "Inbasekaran <inbasekaran18@gmail.com>",
+  "license": "MIT",
   "private": true,
   "dependencies": {
     "@faker-js/faker": "^9.0.0",
